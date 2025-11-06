@@ -45,6 +45,34 @@ cd self-hosted-ai-starter-kit
 cp .env.example .env # you should update secrets and passwords inside
 ```
 
+#### Secure Qdrant with an API key
+
+Qdrant now requires an API key for any requests that reach it through the
+exposed proxy on port `8080`. Generate a key (and optionally a separate
+read-only key) and add them to your `.env` file before starting the stack:
+
+```bash
+openssl rand -hex 32 # copy the output
+```
+
+Update `.env` with the generated value(s):
+
+```bash
+QDRANT_API_KEY=<paste-your-key-here>
+# Optional: QDRANT_READ_ONLY_API_KEY=<second-key>
+```
+
+When sending requests to Qdrant through the proxy, include the `api-key`
+header. For example:
+
+```bash
+curl -H "api-key: $QDRANT_API_KEY" http://localhost:8080/collections
+```
+
+Traffic originating from other containers on the internal Docker network can
+connect to the `qdrant` service directly (e.g. `http://qdrant:6333`) using the
+same header.
+
 ### Running n8n using Docker Compose
 
 #### For Nvidia GPU users
